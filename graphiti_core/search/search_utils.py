@@ -355,7 +355,7 @@ async def node_fulltext_search(
     filter_query, filter_params = node_search_filter_query_constructor(search_filter)
 
     query = (
-        get_nodes_query(driver.provider, 'node_name_and_summary', '$query')
+        get_nodes_query(driver.provider, 'node_name_summary_and_aliases', '$query')
         + """
         YIELD node AS n, score
             WITH n, score
@@ -721,7 +721,7 @@ async def get_relevant_nodes(
         WHERE score > $min_score
         WITH node, collect(n)[..$limit] AS top_vector_nodes, collect(n.uuid) AS vector_node_uuids
         """
-        + get_nodes_query(driver.provider, 'node_name_and_summary', 'node.fulltext_query')
+        + get_nodes_query(driver.provider, 'node_name_summary_and_aliases', 'node.fulltext_query')
         + """
         YIELD node AS m
         WHERE m.group_id = $group_id

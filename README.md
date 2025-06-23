@@ -165,6 +165,24 @@ For a complete working example, see the [Quickstart Example](./examples/quicksta
 
 The example is fully documented with clear explanations of each functionality and includes a comprehensive README with setup instructions and next steps.
 
+## Seeding Assets with Aliases
+
+Including aliases when seeding nodes ensures new mentions resolve to the correct entity.
+
+```python
+from graphiti_core.nodes import EntityNode
+
+btc = EntityNode(
+    name="BTC",
+    group_id="crypto",
+    aliases=["Bitcoin"],
+)
+await btc.generate_name_embedding(graphiti.embedder)
+await btc.save(graphiti.driver)
+```
+
+When an episode later mentions "Bitcoin" Graphiti links it to the existing `BTC` node rather than creating a duplicate.
+
 ## MCP Server
 
 The `mcp_server` directory contains a Model Context Protocol (MCP) server implementation for Graphiti. This server allows AI assistants to interact with Graphiti's knowledge graph capabilities through the MCP protocol.

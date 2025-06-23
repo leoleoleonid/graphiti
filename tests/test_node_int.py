@@ -42,6 +42,7 @@ def sample_entity_node():
         labels=['Entity'],
         name_embedding=[0.5] * 1024,
         summary='Entity Summary',
+        aliases=['Alias'],
     )
 
 
@@ -78,6 +79,7 @@ async def test_entity_node_save_get_and_delete(sample_entity_node):
     assert retrieved.uuid == sample_entity_node.uuid
     assert retrieved.name == 'Test Entity'
     assert retrieved.group_id == 'test_group'
+    assert retrieved.aliases == ['Alias']
 
     await sample_entity_node.delete(neo4j_driver)
 
