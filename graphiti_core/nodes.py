@@ -43,8 +43,9 @@ ENTITY_NODE_RETURN: LiteralString = """
             n.uuid As uuid, 
             n.name AS name,
             n.group_id AS group_id,
-            n.created_at AS created_at, 
+            n.created_at AS created_at,
             n.summary AS summary,
+            n.aliases AS aliases,
             labels(n) AS labels,
             properties(n) AS attributes
             """
@@ -291,6 +292,7 @@ class EpisodicNode(Node):
 class EntityNode(Node):
     name_embedding: list[float] | None = Field(default=None, description='embedding of the name')
     summary: str = Field(description='regional summary of surrounding edges', default_factory=str)
+    aliases: list[str] = Field(default_factory=list, description='alternate names')
     attributes: dict[str, Any] = Field(
         default={}, description='Additional attributes of the node. Dependent on node labels'
     )
@@ -325,6 +327,7 @@ class EntityNode(Node):
             'name_embedding': self.name_embedding,
             'group_id': self.group_id,
             'summary': self.summary,
+            'aliases': self.aliases,
             'created_at': self.created_at,
         }
 
@@ -561,6 +564,7 @@ def get_entity_node_from_record(record: Any) -> EntityNode:
         labels=record['labels'],
         created_at=parse_db_date(record['created_at']),  # type: ignore
         summary=record['summary'],
+        aliases=record.get('aliases') or record['attributes'].get('aliases', []),
         attributes=record['attributes'],
     )
 
@@ -570,6 +574,7 @@ def get_entity_node_from_record(record: Any) -> EntityNode:
     entity_node.attributes.pop('name_embedding', None)
     entity_node.attributes.pop('summary', None)
     entity_node.attributes.pop('created_at', None)
+    entity_node.attributes.pop('aliases', None)
 
     return entity_node
 

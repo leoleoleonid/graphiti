@@ -19,6 +19,7 @@ from graphiti_core.models.nodes.node_db_queries import (
 # Mapping from Neo4j fulltext index names to FalkorDB node labels
 NEO4J_TO_FALKORDB_MAPPING = {
     'node_name_and_summary': 'Entity',
+    'node_name_summary_and_aliases': 'Entity',
     'community_name': 'Community',
     'episode_content': 'Episodic',
     'edge_name_and_fact': 'RELATES_TO',
@@ -69,19 +70,21 @@ def get_fulltext_indices(db_type: str = 'neo4j') -> list[LiteralString]:
     if db_type == 'falkordb':
         return [
             """CREATE FULLTEXT INDEX FOR (e:Episodic) ON (e.content, e.source, e.source_description, e.group_id)""",
-            """CREATE FULLTEXT INDEX FOR (n:Entity) ON (n.name, n.summary, n.group_id)""",
+            """CREATE FULLTEXT INDEX FOR (n:Entity) ON (n.name, n.aliases, n.summary, n.group_id)""",
             """CREATE FULLTEXT INDEX FOR (n:Community) ON (n.name, n.group_id)""",
             """CREATE FULLTEXT INDEX FOR ()-[e:RELATES_TO]-() ON (e.name, e.fact, e.group_id)""",
         ]
     else:
         return [
-            """CREATE FULLTEXT INDEX episode_content IF NOT EXISTS 
+            """CREATE FULLTEXT INDEX episode_content IF NOT EXISTS
             FOR (e:Episodic) ON EACH [e.content, e.source, e.source_description, e.group_id]""",
-            """CREATE FULLTEXT INDEX node_name_and_summary IF NOT EXISTS 
+            """CREATE FULLTEXT INDEX node_name_and_summary IF NOT EXISTS
             FOR (n:Entity) ON EACH [n.name, n.summary, n.group_id]""",
-            """CREATE FULLTEXT INDEX community_name IF NOT EXISTS 
+            """CREATE FULLTEXT INDEX node_name_summary_and_aliases IF NOT EXISTS
+            FOR (n:Entity) ON EACH [n.name, n.aliases, n.summary, n.group_id]""",
+            """CREATE FULLTEXT INDEX community_name IF NOT EXISTS
             FOR (n:Community) ON EACH [n.name, n.group_id]""",
-            """CREATE FULLTEXT INDEX edge_name_and_fact IF NOT EXISTS 
+            """CREATE FULLTEXT INDEX edge_name_and_fact IF NOT EXISTS
             FOR ()-[e:RELATES_TO]-() ON EACH [e.name, e.fact, e.group_id]""",
         ]
 
